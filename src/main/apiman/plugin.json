@@ -1,6 +1,6 @@
 {
   "frameworkVersion": 1.0,
   "name": "Lambda Policy Plugin",
-  "description": "This plugin invokes a Lambda function backend.",
+  "description": "This plugin invokes Lambda functions.",
   "version": "${project.version}"
 }

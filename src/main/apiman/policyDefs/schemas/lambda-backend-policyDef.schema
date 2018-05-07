@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "title": "Lambda Policy Configuration",
+  "title": "Lambda Backend Policy Configuration",
   "type": "object",
   "properties": {
     "functionName": {

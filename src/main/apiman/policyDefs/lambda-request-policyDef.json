@@ -1,0 +1,9 @@
+{
+  "id": "apiman-lambda-request-policy",
+  "name": "Lambda Request Policy",
+  "description": "Invokes a Lambda function on the request.",
+  "policyImpl": "plugin:${project.groupId}:${project.artifactId}:${project.version}:${project.packaging}/com.gatehill.apiman.plugin.lambda.LambdaRequestPolicy",
+  "icon": "file",
+  "formType": "JsonSchema",
+  "form": "schemas/lambda-request-policyDef.schema"
+}

@@ -1,9 +1,0 @@
-{
-  "id": "apiman-lambda-policy",
-  "name": "Lambda Policy",
-  "description": "Invokes a Lambda function backend.",
-  "policyImpl": "plugin:${project.groupId}:${project.artifactId}:${project.version}:${project.packaging}/com.gatehill.apiman.plugin.lambda.LambdaPolicy",
-  "icon": "file",
-  "formType": "JsonSchema",
-  "form": "schemas/script-policyDef.schema"
-}

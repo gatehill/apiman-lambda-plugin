@@ -10,14 +10,27 @@ import java.util.Map;
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
 public class HttpRequest extends HttpMessage {
+    private String url;
     private String httpMethod;
     private Map<String, String> queryParams = Collections.emptyMap();
 
+    public HttpRequest() {
+    }
+
     public HttpRequest(ApiRequest request, IApimanBuffer requestBuffer) {
+        setUrl(request.getUrl());
         setHttpMethod(request.getType());
         setQueryParams(request.getQueryParams().toMap());
         setHeaders(request.getHeaders().toMap());
         setBody(requestBuffer.toString());
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     public String getHttpMethod() {
@@ -39,7 +52,8 @@ public class HttpRequest extends HttpMessage {
     @Override
     public String toString() {
         return "HttpRequest{" +
-                "httpMethod='" + httpMethod + '\'' +
+                "url='" + url + '\'' +
+                ", httpMethod='" + httpMethod + '\'' +
                 ", queryParams=" + queryParams +
                 "} " + super.toString();
     }

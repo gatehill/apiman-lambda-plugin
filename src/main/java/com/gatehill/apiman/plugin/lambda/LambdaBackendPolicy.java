@@ -28,7 +28,7 @@ import io.apiman.gateway.engine.policy.IPolicyContext;
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
 @SuppressWarnings("nls")
-public class LambdaPolicy extends AbstractMappedPolicy<LambdaPolicyConfig> {
+public class LambdaBackendPolicy extends AbstractMappedPolicy<LambdaPolicyConfig> {
     @Override
     protected Class<LambdaPolicyConfig> getConfigurationClass() {
         return LambdaPolicyConfig.class;

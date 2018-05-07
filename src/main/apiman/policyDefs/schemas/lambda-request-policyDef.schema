@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Lambda Request Policy Configuration",
+  "type": "object",
+  "properties": {
+    "functionName": {
+      "title": "Lambda function name",
+      "description": "The name of the lambda function to execute",
+      "type": "string"
+    }
+  }
+}
