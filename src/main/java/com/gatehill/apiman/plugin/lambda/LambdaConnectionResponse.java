@@ -23,7 +23,7 @@ import static java.util.Optional.ofNullable;
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
 class LambdaConnectionResponse implements IApiConnectionResponse {
-    private static final Logger LOGGER = LoggerFactory.getLogger(LambdaConnectorInterceptor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LambdaConnectionResponse.class);
     private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
     private final LambdaPolicyConfig config;
     private final IBufferFactoryComponent bufferFactory;

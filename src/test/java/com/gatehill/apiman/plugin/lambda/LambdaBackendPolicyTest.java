@@ -6,26 +6,24 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Tests for {@link LambdaPolicy}.
+ * Tests for {@link LambdaBackendPolicy}.
  *
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
 @SuppressWarnings("nls")
-@TestingPolicy(LambdaPolicy.class)
-public class LambdaPolicyTest extends ApimanPolicyTest {
-    private static final String RESOURCE = "/some/resource";
-
+@TestingPolicy(LambdaBackendPolicy.class)
+public class LambdaBackendPolicyTest extends ApimanPolicyTest {
     @Test
-    @Configuration(classpathConfigFile = "standard-config.json")
+    @Configuration(classpathConfigFile = "backend-config.json")
     @BackEndApi(EchoBackEndApi.class)
     public void testInvokeLambda() throws Throwable {
-        final PolicyTestRequest request = PolicyTestRequest.build(PolicyTestRequestType.GET, RESOURCE);
+        final PolicyTestRequest request = PolicyTestRequest.build(PolicyTestRequestType.GET, "/some/resource");
         request.body("foo");
 
         final PolicyTestResponse response = send(request);
         assertEquals(200, response.code());
 
-        // no content should be returned
+        // the lambda returns this body
         assertEquals("Hello world!", response.body());
     }
 }
