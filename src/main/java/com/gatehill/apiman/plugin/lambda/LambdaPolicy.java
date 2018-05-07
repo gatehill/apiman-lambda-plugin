@@ -23,7 +23,7 @@ import io.apiman.gateway.engine.policy.IPolicyChain;
 import io.apiman.gateway.engine.policy.IPolicyContext;
 
 /**
- * Delegates response processing to a script.
+ * Invokes a Lambda function instead of the configured backend API.
  *
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
