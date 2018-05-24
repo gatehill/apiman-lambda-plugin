@@ -16,7 +16,7 @@
 package com.gatehill.apiman.plugin.lambda;
 
 import com.amazonaws.handlers.AsyncHandler;
-import com.amazonaws.services.lambda.AWSLambdaAsyncClientBuilder;
+import com.amazonaws.services.lambda.AWSLambdaAsync;
 import com.amazonaws.services.lambda.model.InvocationType;
 import com.amazonaws.services.lambda.model.InvokeRequest;
 import com.amazonaws.services.lambda.model.InvokeResult;
@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.util.ByteBufferBackedInputStream;
 import com.gatehill.apiman.plugin.lambda.beans.LambdaPolicyConfig;
 import com.gatehill.apiman.plugin.lambda.model.HttpRequest;
+import com.gatehill.apiman.plugin.lambda.util.LambdaClientUtil;
 import io.apiman.gateway.engine.beans.ApiRequest;
 import io.apiman.gateway.engine.beans.ApiResponse;
 import io.apiman.gateway.engine.beans.util.HeaderMap;
@@ -162,7 +163,8 @@ public class LambdaRequestPolicy extends AbstractMappedDataPolicy<LambdaPolicyCo
             }
         };
 
-        AWSLambdaAsyncClientBuilder.defaultClient().invokeAsync(invokeRequest, asyncHandler);
+        final AWSLambdaAsync lambdaClient = LambdaClientUtil.build(config);
+        lambdaClient.invokeAsync(invokeRequest, asyncHandler);
         return future;
     }
 

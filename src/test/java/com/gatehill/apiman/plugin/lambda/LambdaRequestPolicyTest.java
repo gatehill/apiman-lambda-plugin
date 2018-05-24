@@ -1,8 +1,12 @@
 package com.gatehill.apiman.plugin.lambda;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gatehill.apiman.plugin.lambda.util.LambdaTestUtil;
 import io.apiman.test.policies.*;
+import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.testcontainers.containers.localstack.LocalStackContainer;
 
 import java.util.Map;
 
@@ -19,8 +23,16 @@ import static org.junit.Assert.assertNotNull;
 public class LambdaRequestPolicyTest extends ApimanPolicyTest {
     private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
 
+    @ClassRule
+    public static LocalStackContainer localStack = LambdaTestUtil.buildLocalStackContainer();
+
+    @Before
+    public void setUp() throws Exception {
+        LambdaTestUtil.createFunction("policyRequestMutator");
+    }
+
     @Test
-    @Configuration(classpathConfigFile = "request-mutator-config.json")
+    @Configuration(classpathConfigFile = "policyRequestMutator-config.json")
     @BackEndApi(EchoBackEndApi.class)
     public void testInvokeLambda() throws Throwable {
         final PolicyTestRequest request = PolicyTestRequest.build(PolicyTestRequestType.GET, "/some/resource");

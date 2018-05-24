@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class LambdaPolicyConfig {
     @JsonProperty
     private String functionName;
+    private String awsLambdaEndpoint;
 
     public String getFunctionName() {
         return functionName;
@@ -17,5 +18,13 @@ public class LambdaPolicyConfig {
 
     public void setFunctionName(String functionName) {
         this.functionName = functionName;
+    }
+
+    public String getAwsLambdaEndpoint() {
+        return awsLambdaEndpoint;
+    }
+
+    public void setAwsLambdaEndpoint(String awsLambdaEndpoint) {
+        this.awsLambdaEndpoint = awsLambdaEndpoint;
     }
 }

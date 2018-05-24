@@ -1,0 +1,4 @@
+{
+  "functionName": "policyRequestMutator",
+  "awsLambdaEndpoint": "http://localhost:4574"
+}
