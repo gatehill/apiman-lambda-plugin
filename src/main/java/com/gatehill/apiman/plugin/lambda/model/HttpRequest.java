@@ -24,6 +24,10 @@ public class HttpRequest extends HttpMessage {
         setQueryParams(request.getQueryParams().toMap());
     }
 
+    public HttpRequest(ApiRequest request) {
+        super(request.getHeaders());
+    }
+
     public String getUrl() {
         return url;
     }

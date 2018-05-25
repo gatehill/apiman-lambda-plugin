@@ -38,9 +38,9 @@ abstract class AbstractLambdaMessagePolicy extends AbstractMappedDataPolicy<Lamb
         return LambdaPolicyConfig.class;
     }
 
-    <M extends HttpMessage> CompletableFuture<M> invokeLambda(LambdaPolicyConfig config, Class<M> messageClass, M httpMessage) {
+    <R> CompletableFuture<R> invokeLambda(LambdaPolicyConfig config, Class<R> resultClass, Object httpMessage) {
         LOGGER.debug("Invoking lambda function: {}", config.getFunctionName());
-        final CompletableFuture<M> future = new CompletableFuture<>();
+        final CompletableFuture<R> future = new CompletableFuture<>();
 
         final InvokeRequest invokeResponse = new InvokeRequest();
         invokeResponse.setFunctionName(config.getFunctionName());
@@ -58,8 +58,8 @@ abstract class AbstractLambdaMessagePolicy extends AbstractMappedDataPolicy<Lamb
             public void onSuccess(InvokeRequest request, InvokeResult invokeResult) {
                 try {
                     LOGGER.info("Lambda function: {} returned successfully", config.getFunctionName());
-                    final M returnedResponse = JSON_MAPPER.readValue(
-                            new ByteBufferBackedInputStream(invokeResult.getPayload()), messageClass);
+                    final R returnedResponse = JSON_MAPPER.readValue(
+                            new ByteBufferBackedInputStream(invokeResult.getPayload()), resultClass);
 
                     future.complete(returnedResponse);
 

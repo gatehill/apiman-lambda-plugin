@@ -16,6 +16,8 @@
 package com.gatehill.apiman.plugin.lambda;
 
 import com.gatehill.apiman.plugin.lambda.beans.LambdaPolicyConfig;
+import com.gatehill.apiman.plugin.lambda.model.HttpExchange;
+import com.gatehill.apiman.plugin.lambda.model.HttpRequest;
 import com.gatehill.apiman.plugin.lambda.model.HttpResponse;
 import com.gatehill.apiman.plugin.lambda.plumbing.AbstractWriteThroughStream;
 import io.apiman.gateway.engine.beans.ApiRequest;
@@ -42,7 +44,7 @@ public class LambdaResponsePolicy extends AbstractLambdaMessagePolicy {
 
     @Override
     protected void doApply(ApiRequest request, IPolicyContext context, LambdaPolicyConfig config, IPolicyChain<ApiRequest> chain) {
-        context.setAttribute("url", request.getUrl());
+        context.setAttribute("request", new HttpRequest(request));
         chain.doApply(request);
     }
 
@@ -73,8 +75,11 @@ public class LambdaResponsePolicy extends AbstractLambdaMessagePolicy {
             public void end() {
                 final CountDownLatch latch = new CountDownLatch(1);
 
-                final HttpResponse httpMessage = new HttpResponse(response, responseBody);
-                invokeLambda(config, HttpResponse.class, httpMessage).thenAccept(httpResponse -> {
+                final HttpRequest httpRequest = context.getAttribute("request", null);
+                final HttpResponse embeddedResponse = new HttpResponse(response, responseBody);
+                final HttpExchange exchange = new HttpExchange(httpRequest, embeddedResponse);
+
+                invokeLambda(config, HttpResponse.class, exchange).thenAccept(httpResponse -> {
                     try {
                         copyHeaderAndBody(bufferFactory, this, httpResponse, response);
                     } finally {
@@ -85,7 +90,7 @@ public class LambdaResponsePolicy extends AbstractLambdaMessagePolicy {
                 }).exceptionally(cause -> {
                     // TODO handle error
                     LOGGER.error("Error invoking lambda function: {} on response: {}",
-                            config.getFunctionName(), context.getAttribute("url", null), cause);
+                            config.getFunctionName(), httpRequest.getUrl(), cause);
 
                     super.end();
                     latch.countDown();

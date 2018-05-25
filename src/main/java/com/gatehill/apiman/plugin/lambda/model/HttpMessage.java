@@ -14,12 +14,16 @@ public abstract class HttpMessage {
     private Map<String, String> headers = emptyMap();
     private String body;
 
+    HttpMessage() {
+    }
+
     HttpMessage(HeaderMap headers, IApimanBuffer buffer) {
-        setHeaders(headers.toMap());
+        this(headers);
         setBody(buffer.toString());
     }
 
-    HttpMessage() {
+    HttpMessage(HeaderMap headers) {
+        setHeaders(headers.toMap());
     }
 
     public Map<String, String> getHeaders() {
