@@ -1,7 +1,6 @@
 package com.gatehill.apiman.plugin.lambda;
 
 import com.amazonaws.handlers.AsyncHandler;
-import com.amazonaws.services.lambda.AWSLambdaAsyncClientBuilder;
 import com.amazonaws.services.lambda.model.InvocationType;
 import com.amazonaws.services.lambda.model.InvokeRequest;
 import com.amazonaws.services.lambda.model.InvokeResult;
@@ -9,6 +8,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gatehill.apiman.plugin.lambda.beans.LambdaPolicyConfig;
 import com.gatehill.apiman.plugin.lambda.model.HttpRequest;
+import com.gatehill.apiman.plugin.lambda.util.LambdaClientUtil;
 import io.apiman.gateway.engine.IApiConnection;
 import io.apiman.gateway.engine.IApiConnectionResponse;
 import io.apiman.gateway.engine.IApiConnector;
@@ -138,7 +138,7 @@ public class LambdaConnectorInterceptor implements IConnectorInterceptor, IApiCo
             }
         };
 
-        invokeFuture = AWSLambdaAsyncClientBuilder.defaultClient().invokeAsync(invokeRequest, asyncHandler);
+        invokeFuture = LambdaClientUtil.build(config).invokeAsync(invokeRequest, asyncHandler);
         try {
             latch.await();
         } catch (InterruptedException ignored) {

@@ -1,0 +1,4 @@
+{
+  "functionName": "policyBackend",
+  "awsLambdaEndpoint": "http://localhost:4574"
+}
