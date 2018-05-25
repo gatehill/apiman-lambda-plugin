@@ -16,6 +16,7 @@
 package com.gatehill.apiman.plugin.lambda;
 
 import com.gatehill.apiman.plugin.lambda.beans.LambdaPolicyConfig;
+import com.gatehill.apiman.plugin.lambda.plumbing.LambdaConnectorInterceptor;
 import io.apiman.gateway.engine.beans.ApiRequest;
 import io.apiman.gateway.engine.components.IBufferFactoryComponent;
 import io.apiman.gateway.engine.policies.AbstractMappedPolicy;

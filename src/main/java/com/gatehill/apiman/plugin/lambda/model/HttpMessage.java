@@ -1,5 +1,8 @@
 package com.gatehill.apiman.plugin.lambda.model;
 
+import io.apiman.gateway.engine.beans.util.HeaderMap;
+import io.apiman.gateway.engine.io.IApimanBuffer;
+
 import java.util.Map;
 
 import static java.util.Collections.emptyMap;
@@ -10,6 +13,14 @@ import static java.util.Collections.emptyMap;
 public abstract class HttpMessage {
     private Map<String, String> headers = emptyMap();
     private String body;
+
+    HttpMessage(HeaderMap headers, IApimanBuffer buffer) {
+        setHeaders(headers.toMap());
+        setBody(buffer.toString());
+    }
+
+    HttpMessage() {
+    }
 
     public Map<String, String> getHeaders() {
         return headers;

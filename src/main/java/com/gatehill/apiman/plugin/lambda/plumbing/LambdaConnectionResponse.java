@@ -1,4 +1,4 @@
-package com.gatehill.apiman.plugin.lambda;
+package com.gatehill.apiman.plugin.lambda.plumbing;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.util.ByteBufferBackedInputStream;

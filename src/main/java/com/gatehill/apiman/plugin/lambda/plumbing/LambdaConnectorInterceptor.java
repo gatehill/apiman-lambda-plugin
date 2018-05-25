@@ -1,4 +1,4 @@
-package com.gatehill.apiman.plugin.lambda;
+package com.gatehill.apiman.plugin.lambda.plumbing;
 
 import com.amazonaws.handlers.AsyncHandler;
 import com.amazonaws.services.lambda.model.InvocationType;
@@ -42,7 +42,7 @@ public class LambdaConnectorInterceptor implements IConnectorInterceptor, IApiCo
     private boolean connected = false;
     private Future<InvokeResult> invokeFuture;
 
-    LambdaConnectorInterceptor(LambdaPolicyConfig config, IBufferFactoryComponent bufferFactory) {
+    public LambdaConnectorInterceptor(LambdaPolicyConfig config, IBufferFactoryComponent bufferFactory) {
         this.config = config;
         this.bufferFactory = bufferFactory;
     }

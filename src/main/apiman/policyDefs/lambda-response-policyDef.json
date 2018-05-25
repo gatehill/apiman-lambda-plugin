@@ -1,0 +1,9 @@
+{
+  "id": "apiman-lambda-response-policy",
+  "name": "Lambda Response Policy",
+  "description": "Invokes a Lambda function on the response.",
+  "policyImpl": "plugin:${project.groupId}:${project.artifactId}:${project.version}:${project.packaging}/com.gatehill.apiman.plugin.lambda.LambdaResponsePolicy",
+  "icon": "file",
+  "formType": "JsonSchema",
+  "form": "schemas/lambda-response-policyDef.schema"
+}

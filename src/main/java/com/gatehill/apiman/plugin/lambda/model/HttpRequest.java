@@ -18,11 +18,10 @@ public class HttpRequest extends HttpMessage {
     }
 
     public HttpRequest(ApiRequest request, IApimanBuffer requestBuffer) {
+        super(request.getHeaders(), requestBuffer);
         setUrl(request.getUrl());
         setHttpMethod(request.getType());
         setQueryParams(request.getQueryParams().toMap());
-        setHeaders(request.getHeaders().toMap());
-        setBody(requestBuffer.toString());
     }
 
     public String getUrl() {

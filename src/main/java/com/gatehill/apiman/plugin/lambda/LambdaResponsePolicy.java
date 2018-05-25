@@ -16,13 +16,14 @@
 package com.gatehill.apiman.plugin.lambda;
 
 import com.gatehill.apiman.plugin.lambda.beans.LambdaPolicyConfig;
-import com.gatehill.apiman.plugin.lambda.model.HttpRequest;
+import com.gatehill.apiman.plugin.lambda.model.HttpResponse;
 import com.gatehill.apiman.plugin.lambda.plumbing.AbstractWriteThroughStream;
 import io.apiman.gateway.engine.beans.ApiRequest;
-import io.apiman.gateway.engine.beans.util.QueryMap;
+import io.apiman.gateway.engine.beans.ApiResponse;
 import io.apiman.gateway.engine.components.IBufferFactoryComponent;
 import io.apiman.gateway.engine.io.IApimanBuffer;
 import io.apiman.gateway.engine.io.IReadWriteStream;
+import io.apiman.gateway.engine.policy.IPolicyChain;
 import io.apiman.gateway.engine.policy.IPolicyContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,54 +31,52 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.CountDownLatch;
 
 /**
- * Invokes a Lambda function on the request, allowing it to be mutated
+ * Invokes a Lambda function on the response, allowing it to be mutated
  * prior to transmission to the back end service.
  *
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
 @SuppressWarnings("nls")
-public class LambdaRequestPolicy extends AbstractLambdaMessagePolicy {
-    private static final Logger LOGGER = LoggerFactory.getLogger(LambdaRequestPolicy.class);
+public class LambdaResponsePolicy extends AbstractLambdaMessagePolicy {
+    private static final Logger LOGGER = LoggerFactory.getLogger(LambdaResponsePolicy.class);
 
     @Override
-    protected IReadWriteStream<ApiRequest> requestDataHandler(ApiRequest request, IPolicyContext context,
-                                                              LambdaPolicyConfig config) {
+    protected void doApply(ApiRequest request, IPolicyContext context, LambdaPolicyConfig config, IPolicyChain<ApiRequest> chain) {
+        context.setAttribute("url", request.getUrl());
+        chain.doApply(request);
+    }
+
+    @Override
+    protected IReadWriteStream<ApiResponse> responseDataHandler(ApiResponse response, IPolicyContext context,
+                                                                LambdaPolicyConfig config) {
 
         final IBufferFactoryComponent bufferFactory = context.getComponent(IBufferFactoryComponent.class);
-        final IApimanBuffer requestBody = bufferFactory.createBuffer();
+        final IApimanBuffer responseBody = bufferFactory.createBuffer();
 
-        return new AbstractWriteThroughStream<ApiRequest>() {
+        return new AbstractWriteThroughStream<ApiResponse>() {
             @Override
-            public ApiRequest getHead() {
-                return request;
+            public ApiResponse getHead() {
+                return response;
             }
 
             @Override
-            protected void handleHead(ApiRequest head) {
+            protected void handleHead(ApiResponse head) {
                 // no op
             }
 
             @Override
             public void write(IApimanBuffer chunk) {
-                requestBody.append(chunk);
+                responseBody.append(chunk);
             }
 
             @Override
             public void end() {
                 final CountDownLatch latch = new CountDownLatch(1);
 
-                final HttpRequest httpMessage = new HttpRequest(request, requestBody);
-                invokeLambda(config, HttpRequest.class, httpMessage).thenAccept(httpRequest -> {
+                final HttpResponse httpMessage = new HttpResponse(response, responseBody);
+                invokeLambda(config, HttpResponse.class, httpMessage).thenAccept(httpResponse -> {
                     try {
-                        request.setType(httpRequest.getHttpMethod());
-                        request.setUrl(httpRequest.getUrl());
-
-                        final QueryMap queryParams = new QueryMap();
-                        queryParams.putAll(httpRequest.getQueryParams());
-                        request.setQueryParams(queryParams);
-
-                        copyHeaderAndBody(bufferFactory, this, httpRequest, request);
-
+                        copyHeaderAndBody(bufferFactory, this, httpResponse, response);
                     } finally {
                         super.end();
                         latch.countDown();
@@ -85,8 +84,8 @@ public class LambdaRequestPolicy extends AbstractLambdaMessagePolicy {
 
                 }).exceptionally(cause -> {
                     // TODO handle error
-                    LOGGER.error("Error invoking lambda function: {} on request: {}",
-                            config.getFunctionName(), request.getUrl(), cause);
+                    LOGGER.error("Error invoking lambda function: {} on response: {}",
+                            config.getFunctionName(), context.getAttribute("url", null), cause);
 
                     super.end();
                     latch.countDown();
@@ -98,6 +97,7 @@ public class LambdaRequestPolicy extends AbstractLambdaMessagePolicy {
                 } catch (InterruptedException ignored) {
                 }
             }
+
         };
     }
 }
