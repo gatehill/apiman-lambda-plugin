@@ -38,7 +38,7 @@ abstract class AbstractLambdaMessagePolicy extends AbstractMappedDataPolicy<Lamb
         return LambdaPolicyConfig.class;
     }
 
-    <R> CompletableFuture<R> invokeLambda(LambdaPolicyConfig config, Class<R> resultClass, Object httpMessage) {
+    <R> CompletableFuture<R> invokeLambda(LambdaPolicyConfig config, Object httpMessage, Class<R> resultClass) {
         LOGGER.debug("Invoking lambda function: {}", config.getFunctionName());
         final CompletableFuture<R> future = new CompletableFuture<>();
 

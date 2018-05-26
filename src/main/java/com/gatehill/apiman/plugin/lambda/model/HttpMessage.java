@@ -6,6 +6,7 @@ import io.apiman.gateway.engine.io.IApimanBuffer;
 import java.util.Map;
 
 import static java.util.Collections.emptyMap;
+import static java.util.Objects.nonNull;
 
 /**
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
@@ -18,12 +19,10 @@ public abstract class HttpMessage {
     }
 
     HttpMessage(HeaderMap headers, IApimanBuffer buffer) {
-        this(headers);
-        setBody(buffer.toString());
-    }
-
-    HttpMessage(HeaderMap headers) {
         setHeaders(headers.toMap());
+        if (nonNull(buffer)) {
+            setBody(buffer.toString());
+        }
     }
 
     public Map<String, String> getHeaders() {

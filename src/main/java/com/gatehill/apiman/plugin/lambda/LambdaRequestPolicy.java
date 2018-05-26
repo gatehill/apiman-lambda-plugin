@@ -46,17 +46,7 @@ public class LambdaRequestPolicy extends AbstractLambdaMessagePolicy {
         final IBufferFactoryComponent bufferFactory = context.getComponent(IBufferFactoryComponent.class);
         final IApimanBuffer requestBody = bufferFactory.createBuffer();
 
-        return new AbstractWriteThroughStream<ApiRequest>() {
-            @Override
-            public ApiRequest getHead() {
-                return request;
-            }
-
-            @Override
-            protected void handleHead(ApiRequest head) {
-                // no op
-            }
-
+        return new AbstractWriteThroughStream<ApiRequest>(request) {
             @Override
             public void write(IApimanBuffer chunk) {
                 requestBody.append(chunk);
@@ -67,7 +57,7 @@ public class LambdaRequestPolicy extends AbstractLambdaMessagePolicy {
                 final CountDownLatch latch = new CountDownLatch(1);
 
                 final HttpRequest httpMessage = new HttpRequest(request, requestBody);
-                invokeLambda(config, HttpRequest.class, httpMessage).thenAccept(httpRequest -> {
+                invokeLambda(config, httpMessage, HttpRequest.class).thenAccept(httpRequest -> {
                     try {
                         request.setType(httpRequest.getHttpMethod());
                         request.setUrl(httpRequest.getUrl());
@@ -84,7 +74,7 @@ public class LambdaRequestPolicy extends AbstractLambdaMessagePolicy {
                     }
 
                 }).exceptionally(cause -> {
-                    // TODO handle error
+                    // TODO better error handling
                     LOGGER.error("Error invoking lambda function: {} on request: {}",
                             config.getFunctionName(), request.getUrl(), cause);
 

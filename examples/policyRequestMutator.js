@@ -1,9 +1,10 @@
 exports.handler = function (request, context, callback) {
-    console.log('URL: ' + request.url);
-    console.log('Method: ' + request.httpMethod);
-    console.log('Headers: ' + request.headers);
-    console.log('Body: ' + request.body);
+    console.log('Request URL: ', request.url);
+    console.log('Request method: ', request.httpMethod);
+    console.log('Request headers: ', request.headers);
+    console.log('Request body: ', request.body);
 
+    // mutate the request
     request.httpMethod = 'POST';
     request.body = 'Hello world!';
     request.headers['X-Custom-Header'] = 'bar';

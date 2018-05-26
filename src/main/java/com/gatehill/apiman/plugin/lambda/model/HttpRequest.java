@@ -25,7 +25,7 @@ public class HttpRequest extends HttpMessage {
     }
 
     public HttpRequest(ApiRequest request) {
-        super(request.getHeaders());
+        this(request, null);
     }
 
     public String getUrl() {

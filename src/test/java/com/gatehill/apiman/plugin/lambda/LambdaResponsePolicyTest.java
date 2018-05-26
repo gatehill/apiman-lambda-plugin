@@ -34,6 +34,7 @@ public class LambdaResponsePolicyTest extends ApimanPolicyTest {
 
         final PolicyTestResponse response = send(request);
         assertEquals(200, response.code());
+        assertEquals("bar", response.header("X-Custom-Header"));
 
         // the lambda returns this body
         assertEquals("Hello world!", response.body());

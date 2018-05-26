@@ -34,7 +34,7 @@ import java.util.concurrent.CountDownLatch;
 
 /**
  * Invokes a Lambda function on the response, allowing it to be mutated
- * prior to transmission to the back end service.
+ * prior to transmission to the API caller.
  *
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
@@ -55,17 +55,7 @@ public class LambdaResponsePolicy extends AbstractLambdaMessagePolicy {
         final IBufferFactoryComponent bufferFactory = context.getComponent(IBufferFactoryComponent.class);
         final IApimanBuffer responseBody = bufferFactory.createBuffer();
 
-        return new AbstractWriteThroughStream<ApiResponse>() {
-            @Override
-            public ApiResponse getHead() {
-                return response;
-            }
-
-            @Override
-            protected void handleHead(ApiResponse head) {
-                // no op
-            }
-
+        return new AbstractWriteThroughStream<ApiResponse>(response) {
             @Override
             public void write(IApimanBuffer chunk) {
                 responseBody.append(chunk);
@@ -79,7 +69,7 @@ public class LambdaResponsePolicy extends AbstractLambdaMessagePolicy {
                 final HttpResponse embeddedResponse = new HttpResponse(response, responseBody);
                 final HttpExchange exchange = new HttpExchange(httpRequest, embeddedResponse);
 
-                invokeLambda(config, HttpResponse.class, exchange).thenAccept(httpResponse -> {
+                invokeLambda(config, exchange, HttpResponse.class).thenAccept(httpResponse -> {
                     try {
                         copyHeaderAndBody(bufferFactory, this, httpResponse, response);
                     } finally {
@@ -88,7 +78,7 @@ public class LambdaResponsePolicy extends AbstractLambdaMessagePolicy {
                     }
 
                 }).exceptionally(cause -> {
-                    // TODO handle error
+                    // TODO better error handling
                     LOGGER.error("Error invoking lambda function: {} on response: {}",
                             config.getFunctionName(), httpRequest.getUrl(), cause);
 
@@ -102,7 +92,6 @@ public class LambdaResponsePolicy extends AbstractLambdaMessagePolicy {
                 } catch (InterruptedException ignored) {
                 }
             }
-
         };
     }
 }
