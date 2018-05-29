@@ -10,30 +10,30 @@ import java.util.Map;
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
 public class HttpRequest extends HttpMessage {
-    private String url;
+    private String path;
     private String httpMethod;
-    private Map<String, String> queryParams = Collections.emptyMap();
+    private Map<String, String> queryStringParameters = Collections.emptyMap();
 
     public HttpRequest() {
     }
 
     public HttpRequest(ApiRequest request, IApimanBuffer requestBuffer) {
         super(request.getHeaders(), requestBuffer);
-        setUrl(request.getUrl());
+        setPath(request.getDestination());
         setHttpMethod(request.getType());
-        setQueryParams(request.getQueryParams().toMap());
+        setQueryStringParameters(request.getQueryParams().toMap());
     }
 
     public HttpRequest(ApiRequest request) {
         this(request, null);
     }
 
-    public String getUrl() {
-        return url;
+    public String getPath() {
+        return path;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setPath(String path) {
+        this.path = path;
     }
 
     public String getHttpMethod() {
@@ -44,20 +44,20 @@ public class HttpRequest extends HttpMessage {
         this.httpMethod = httpMethod;
     }
 
-    public Map<String, String> getQueryParams() {
-        return queryParams;
+    public Map<String, String> getQueryStringParameters() {
+        return queryStringParameters;
     }
 
-    public void setQueryParams(Map<String, String> queryParams) {
-        this.queryParams = queryParams;
+    public void setQueryStringParameters(Map<String, String> queryStringParameters) {
+        this.queryStringParameters = queryStringParameters;
     }
 
     @Override
     public String toString() {
         return "HttpRequest{" +
-                "url='" + url + '\'' +
+                "path='" + path + '\'' +
                 ", httpMethod='" + httpMethod + '\'' +
-                ", queryParams=" + queryParams +
+                ", queryStringParameters=" + queryStringParameters +
                 "} " + super.toString();
     }
 }

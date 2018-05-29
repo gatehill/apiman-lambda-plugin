@@ -1,8 +1,8 @@
 exports.handler = function (request, context, callback) {
-    console.log('Request URL: ', request.url);
-    console.log('Request method: ', request.httpMethod);
-    console.log('Request headers: ', request.headers);
-    console.log('Request body: ', request.body);
+    console.log('Request path:', request.path);
+    console.log('Request method:', request.httpMethod);
+    console.log('Request headers:', request.headers);
+    console.log('Request body:', request.body);
 
     // mutate the request
     request.httpMethod = 'POST';

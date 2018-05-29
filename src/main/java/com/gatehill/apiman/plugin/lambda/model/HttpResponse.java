@@ -1,11 +1,13 @@
 package com.gatehill.apiman.plugin.lambda.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.apiman.gateway.engine.beans.ApiResponse;
 import io.apiman.gateway.engine.io.IApimanBuffer;
 
 /**
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class HttpResponse extends HttpMessage {
     private Integer statusCode;
 

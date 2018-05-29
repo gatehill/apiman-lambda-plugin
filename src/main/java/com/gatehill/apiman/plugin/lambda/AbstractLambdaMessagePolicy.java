@@ -20,6 +20,7 @@ import io.apiman.gateway.engine.components.IBufferFactoryComponent;
 import io.apiman.gateway.engine.io.IReadWriteStream;
 import io.apiman.gateway.engine.policies.AbstractMappedDataPolicy;
 import io.apiman.gateway.engine.policy.IPolicyContext;
+import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,7 +88,13 @@ abstract class AbstractLambdaMessagePolicy extends AbstractMappedDataPolicy<Lamb
         headers.putAll(httpMessage.getHeaders());
         message.setHeaders(headers);
 
-        stream.writeThrough(bufferFactory.createBuffer(httpMessage.getBody()));
+        final String body;
+        if (httpMessage.isBase64Encoded()) {
+            body = new String(Base64.decodeBase64(httpMessage.getBody()));
+        } else {
+            body = httpMessage.getBody();
+        }
+        stream.writeThrough(bufferFactory.createBuffer(body));
     }
 
     @Override

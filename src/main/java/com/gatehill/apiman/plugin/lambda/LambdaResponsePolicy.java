@@ -80,7 +80,7 @@ public class LambdaResponsePolicy extends AbstractLambdaMessagePolicy {
                 }).exceptionally(cause -> {
                     // TODO better error handling
                     LOGGER.error("Error invoking lambda function: {} on response: {}",
-                            config.getFunctionName(), httpRequest.getUrl(), cause);
+                            config.getFunctionName(), httpRequest.getPath(), cause);
 
                     super.end();
                     latch.countDown();

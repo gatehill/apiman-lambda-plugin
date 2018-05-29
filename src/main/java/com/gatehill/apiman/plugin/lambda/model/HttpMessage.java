@@ -14,6 +14,7 @@ import static java.util.Objects.nonNull;
 public abstract class HttpMessage {
     private Map<String, String> headers = emptyMap();
     private String body;
+    private boolean isBase64Encoded = false;
 
     HttpMessage() {
     }
@@ -41,11 +42,20 @@ public abstract class HttpMessage {
         this.body = body;
     }
 
+    public boolean isBase64Encoded() {
+        return isBase64Encoded;
+    }
+
+    public void setBase64Encoded(boolean base64Encoded) {
+        isBase64Encoded = base64Encoded;
+    }
+
     @Override
     public String toString() {
         return "HttpMessage{" +
                 "headers=" + headers +
                 ", body='" + body + '\'' +
+                ", isBase64Encoded=" + isBase64Encoded +
                 '}';
     }
 }

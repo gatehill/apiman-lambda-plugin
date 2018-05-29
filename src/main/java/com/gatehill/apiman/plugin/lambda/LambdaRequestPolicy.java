@@ -60,10 +60,10 @@ public class LambdaRequestPolicy extends AbstractLambdaMessagePolicy {
                 invokeLambda(config, httpMessage, HttpRequest.class).thenAccept(httpRequest -> {
                     try {
                         request.setType(httpRequest.getHttpMethod());
-                        request.setUrl(httpRequest.getUrl());
+                        request.setUrl(httpRequest.getPath());
 
                         final QueryMap queryParams = new QueryMap();
-                        queryParams.putAll(httpRequest.getQueryParams());
+                        queryParams.putAll(httpRequest.getQueryStringParameters());
                         request.setQueryParams(queryParams);
 
                         copyHeaderAndBody(bufferFactory, this, httpRequest, request);
