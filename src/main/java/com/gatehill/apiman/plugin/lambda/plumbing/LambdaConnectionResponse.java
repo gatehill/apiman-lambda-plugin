@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import static java.util.Collections.emptyMap;
+import static java.util.Objects.nonNull;
 import static java.util.Optional.ofNullable;
 
 /**
@@ -44,7 +45,14 @@ class LambdaConnectionResponse implements IApiConnectionResponse {
     @Override
     public void transmit() {
         LOGGER.debug("Lambda function: {} transmitting", config.getFunctionName());
-        bodyHandler.handle(bufferFactory.createBuffer(httpResponse.getBody()));
+
+        final IApimanBuffer body;
+        if (nonNull(httpResponse.getBody())) {
+            body = bufferFactory.createBuffer(httpResponse.getBody());
+        } else {
+            body = bufferFactory.createBuffer(0);
+        }
+        bodyHandler.handle(body);
         endHandler.handle(null);
 
         connectorInterceptor.setConnected(false);
