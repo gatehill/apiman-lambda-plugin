@@ -9,6 +9,7 @@ import io.apiman.gateway.engine.async.IAsyncHandler;
 import io.apiman.gateway.engine.beans.ApiResponse;
 import io.apiman.gateway.engine.components.IBufferFactoryComponent;
 import io.apiman.gateway.engine.io.IApimanBuffer;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.http.impl.EnglishReasonPhraseCatalog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,13 +47,19 @@ class LambdaConnectionResponse implements IApiConnectionResponse {
     public void transmit() {
         LOGGER.debug("Lambda function: {} transmitting", config.getFunctionName());
 
-        final IApimanBuffer body;
+        final IApimanBuffer bodyBuffer;
         if (nonNull(httpResponse.getBody())) {
-            body = bufferFactory.createBuffer(httpResponse.getBody());
+            final String body;
+            if (httpResponse.getIsBase64Encoded()) {
+                body = new String(Base64.decodeBase64(httpResponse.getBody()));
+            } else {
+                body = httpResponse.getBody();
+            }
+            bodyBuffer = bufferFactory.createBuffer(body);
         } else {
-            body = bufferFactory.createBuffer(0);
+            bodyBuffer = bufferFactory.createBuffer(0);
         }
-        bodyHandler.handle(body);
+        bodyHandler.handle(bodyBuffer);
         endHandler.handle(null);
 
         connectorInterceptor.setConnected(false);

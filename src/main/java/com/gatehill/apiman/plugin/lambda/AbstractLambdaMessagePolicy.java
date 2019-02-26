@@ -89,7 +89,7 @@ abstract class AbstractLambdaMessagePolicy extends AbstractMappedDataPolicy<Lamb
         message.setHeaders(headers);
 
         final String body;
-        if (httpMessage.isBase64Encoded()) {
+        if (httpMessage.getIsBase64Encoded()) {
             body = new String(Base64.decodeBase64(httpMessage.getBody()));
         } else {
             body = httpMessage.getBody();

@@ -1,7 +1,9 @@
 package com.gatehill.apiman.plugin.lambda.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.apiman.gateway.engine.beans.util.HeaderMap;
 import io.apiman.gateway.engine.io.IApimanBuffer;
+import org.apache.commons.codec.binary.Base64;
 
 import java.util.Map;
 
@@ -14,6 +16,8 @@ import static java.util.Objects.nonNull;
 public abstract class HttpMessage {
     private Map<String, String> headers = emptyMap();
     private String body;
+
+    @JsonProperty("isBase64Encoded")
     private boolean isBase64Encoded = false;
 
     HttpMessage() {
@@ -21,8 +25,11 @@ public abstract class HttpMessage {
 
     HttpMessage(HeaderMap headers, IApimanBuffer buffer) {
         setHeaders(headers.toMap());
-        if (nonNull(buffer)) {
-            setBody(buffer.toString());
+        if (nonNull(buffer) && buffer.length() > 0) {
+            setBody(Base64.encodeBase64String(buffer.getBytes()));
+            setIsBase64Encoded(true);
+        } else {
+            setIsBase64Encoded(false);
         }
     }
 
@@ -42,12 +49,12 @@ public abstract class HttpMessage {
         this.body = body;
     }
 
-    public boolean isBase64Encoded() {
+    public boolean getIsBase64Encoded() {
         return isBase64Encoded;
     }
 
-    public void setBase64Encoded(boolean base64Encoded) {
-        isBase64Encoded = base64Encoded;
+    public void setIsBase64Encoded(boolean isBase64Encoded) {
+        this.isBase64Encoded = isBase64Encoded;
     }
 
     @Override
