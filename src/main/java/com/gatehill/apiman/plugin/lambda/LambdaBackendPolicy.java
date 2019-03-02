@@ -29,6 +29,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Invokes a Lambda function instead of the configured backend API.
@@ -51,10 +53,17 @@ public class LambdaBackendPolicy extends AbstractMappedPolicy<LambdaBackendPolic
         final String functionName;
         if (Boolean.TRUE.equals(config.getWildcard())) {
             try {
-                functionName = Arrays.stream(request.getDestination().split("/"))
-                        .filter(StringUtils::isNotBlank)
-                        .findFirst()
-                        .orElseThrow(() -> new IllegalStateException("No function name found in request path"));
+                // example: /function-name/foo/bar
+                final String[] pathElements = request.getDestination().split("/");
+
+                if (pathElements.length <= 1) {
+                    throw new IllegalStateException("No function name found in request path");
+                }
+
+                functionName = pathElements[1];
+
+                // strip function name from downstream request path
+                request.setDestination("/" + String.join("/", Arrays.copyOfRange(pathElements, 2, pathElements.length)));
 
             } catch (Exception e) {
                 LOGGER.error("Error determining function name from request path: {}", request.getDestination(), e);
