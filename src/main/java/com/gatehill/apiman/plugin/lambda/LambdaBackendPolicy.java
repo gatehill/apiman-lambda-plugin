@@ -15,13 +15,20 @@
  */
 package com.gatehill.apiman.plugin.lambda;
 
-import com.gatehill.apiman.plugin.lambda.beans.LambdaPolicyConfig;
+import com.gatehill.apiman.plugin.lambda.beans.LambdaBackendPolicyConfig;
 import com.gatehill.apiman.plugin.lambda.plumbing.LambdaConnectorInterceptor;
 import io.apiman.gateway.engine.beans.ApiRequest;
+import io.apiman.gateway.engine.beans.PolicyFailure;
+import io.apiman.gateway.engine.beans.PolicyFailureType;
 import io.apiman.gateway.engine.components.IBufferFactoryComponent;
 import io.apiman.gateway.engine.policies.AbstractMappedPolicy;
 import io.apiman.gateway.engine.policy.IPolicyChain;
 import io.apiman.gateway.engine.policy.IPolicyContext;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Arrays;
 
 /**
  * Invokes a Lambda function instead of the configured backend API.
@@ -29,18 +36,37 @@ import io.apiman.gateway.engine.policy.IPolicyContext;
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
 @SuppressWarnings("nls")
-public class LambdaBackendPolicy extends AbstractMappedPolicy<LambdaPolicyConfig> {
+public class LambdaBackendPolicy extends AbstractMappedPolicy<LambdaBackendPolicyConfig> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(LambdaBackendPolicy.class);
+
     @Override
-    protected Class<LambdaPolicyConfig> getConfigurationClass() {
-        return LambdaPolicyConfig.class;
+    protected Class<LambdaBackendPolicyConfig> getConfigurationClass() {
+        return LambdaBackendPolicyConfig.class;
     }
 
     @Override
     protected void doApply(final ApiRequest request, final IPolicyContext context,
-                           final LambdaPolicyConfig config, final IPolicyChain<ApiRequest> chain) {
+                           final LambdaBackendPolicyConfig config, final IPolicyChain<ApiRequest> chain) {
+
+        final String functionName;
+        if (Boolean.TRUE.equals(config.getWildcard())) {
+            try {
+                functionName = Arrays.stream(request.getDestination().split("/"))
+                        .filter(StringUtils::isNotBlank)
+                        .findFirst()
+                        .orElseThrow(() -> new IllegalStateException("No function name found in request path"));
+
+            } catch (Exception e) {
+                LOGGER.error("Error determining function name from request path: {}", request.getDestination(), e);
+                chain.doFailure(new PolicyFailure(PolicyFailureType.Other, 400, "Unable to determine function name from request path"));
+                return;
+            }
+        } else {
+            functionName = config.getFunctionName();
+        }
 
         final IBufferFactoryComponent bufferFactory = context.getComponent(IBufferFactoryComponent.class);
-        context.setConnectorInterceptor(() -> new LambdaConnectorInterceptor(config, bufferFactory));
+        context.setConnectorInterceptor(() -> new LambdaConnectorInterceptor(functionName, config, bufferFactory));
         chain.doApply(request);
     }
 }

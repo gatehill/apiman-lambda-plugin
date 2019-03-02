@@ -1,0 +1,5 @@
+{
+  "functionName": null,
+  "wildcard": true,
+  "awsLambdaEndpoint": "http://localhost:4574"
+}

@@ -3,13 +3,15 @@ package com.gatehill.apiman.plugin.lambda.beans;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * Configuration object for the Lambda Policy.
+ * Configuration object for Lambda Policies.
  *
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
 public class LambdaPolicyConfig {
     @JsonProperty
     private String functionName;
+
+    @JsonProperty
     private String awsLambdaEndpoint;
 
     public String getFunctionName() {

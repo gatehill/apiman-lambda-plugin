@@ -6,7 +6,7 @@ import com.amazonaws.services.lambda.model.InvokeRequest;
 import com.amazonaws.services.lambda.model.InvokeResult;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gatehill.apiman.plugin.lambda.beans.LambdaPolicyConfig;
+import com.gatehill.apiman.plugin.lambda.beans.LambdaBackendPolicyConfig;
 import com.gatehill.apiman.plugin.lambda.model.HttpRequest;
 import com.gatehill.apiman.plugin.lambda.util.LambdaClientUtil;
 import io.apiman.gateway.engine.IApiConnection;
@@ -33,8 +33,9 @@ import static java.util.Objects.nonNull;
 public class LambdaConnectorInterceptor implements IConnectorInterceptor, IApiConnector, IApiConnection {
     private static final Logger LOGGER = LoggerFactory.getLogger(LambdaConnectorInterceptor.class);
     private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
-    private final LambdaPolicyConfig config;
+    private final LambdaBackendPolicyConfig config;
     private final IBufferFactoryComponent bufferFactory;
+    private final String functionName;
     private ApiRequest request;
     private IAsyncResultHandler<IApiConnectionResponse> responseHandler;
     private IApimanBuffer requestBuffer;
@@ -42,7 +43,8 @@ public class LambdaConnectorInterceptor implements IConnectorInterceptor, IApiCo
     private boolean connected = false;
     private Future<InvokeResult> invokeFuture;
 
-    public LambdaConnectorInterceptor(LambdaPolicyConfig config, IBufferFactoryComponent bufferFactory) {
+    public LambdaConnectorInterceptor(String functionName, LambdaBackendPolicyConfig config, IBufferFactoryComponent bufferFactory) {
+        this.functionName = functionName;
         this.config = config;
         this.bufferFactory = bufferFactory;
     }
@@ -54,7 +56,7 @@ public class LambdaConnectorInterceptor implements IConnectorInterceptor, IApiCo
 
     @Override
     public IApiConnection connect(ApiRequest request, IAsyncResultHandler<IApiConnectionResponse> handler) {
-        LOGGER.debug("Received connection request for function: {}", config.getFunctionName());
+        LOGGER.debug("Received connection request for function: {}", functionName);
         this.request = request;
         this.responseHandler = handler;
         this.connected = true;
@@ -66,7 +68,7 @@ public class LambdaConnectorInterceptor implements IConnectorInterceptor, IApiCo
     @Override
     public void abort(Throwable t) {
         if (!finished) {
-            LOGGER.debug("Aborting lambda connection for function: {}", config.getFunctionName());
+            LOGGER.debug("Aborting lambda connection for function: {}", functionName);
             finished = true;
             connected = false;
 
@@ -86,10 +88,10 @@ public class LambdaConnectorInterceptor implements IConnectorInterceptor, IApiCo
      */
     @Override
     public void end() {
-        LOGGER.debug("Invoking lambda function: {}", config.getFunctionName());
+        LOGGER.debug("Invoking lambda function: {}", functionName);
 
         final InvokeRequest invokeRequest = new InvokeRequest();
-        invokeRequest.setFunctionName(config.getFunctionName());
+        invokeRequest.setFunctionName(functionName);
         invokeRequest.setInvocationType(InvocationType.RequestResponse);
 
         try {
@@ -109,7 +111,7 @@ public class LambdaConnectorInterceptor implements IConnectorInterceptor, IApiCo
                         // we may already have aborted
                         return;
                     }
-                    LOGGER.info("Lambda function: {} returned successfully", config.getFunctionName());
+                    LOGGER.info("Lambda function: {} returned successfully", functionName);
                     final LambdaConnectionResponse connectionResponse = new LambdaConnectionResponse(
                             config, bufferFactory, LambdaConnectorInterceptor.this, invokeResult.getPayload());
 
@@ -129,7 +131,7 @@ public class LambdaConnectorInterceptor implements IConnectorInterceptor, IApiCo
                         // we may already have aborted
                         return;
                     }
-                    LOGGER.error("Lambda function: {} returned an error", config.getFunctionName(), e);
+                    LOGGER.error("Lambda function: {} returned an error", functionName, e);
                     responseHandler.handle(AsyncResultImpl.create(e));
 
                 } finally {
